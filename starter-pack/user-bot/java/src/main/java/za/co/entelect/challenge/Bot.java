@@ -13,6 +13,9 @@ import java.security.SecureRandom;
 
 public class Bot {
 
+    private static final int MUD_DAMAGE = 1;
+    private static final int OIL_DAMAGE = 1;
+    private static final int WALL_DAMAGE = 2;
     private static final int maxSpeed = 9;
     private static final int SPEED_LEVEL_1 = 3;
     private static final int SPEED_LEVEL_2 = 6;
@@ -46,6 +49,8 @@ public class Bot {
         Car myCar = gameState.player;
         Car opponent = gameState.opponent;
         List<Lane[]> map = gameState.lanes;
+        int x = myCar.position.block;
+        int y = myCar.position.lane;
 
         //Getter info
         //myCar.position.lane = row/y
@@ -55,31 +60,30 @@ public class Bot {
 
         //Bot visible map
         Lane[] laneStraight;
-        Lane[] laneRight;
-        Lane[] laneLeft;
-
+        Lane[] laneRight = new Lane[1];
+        Lane[] laneLeft = new Lane[1];
         List<Object> nextBlock;
 
         //monitor straight
         laneStraight = map.get(myCar.position.lane-1);
 
         //also look left and right
-        if (myCar.position.lane == 2 || myCar.position.lane == 3)
+        if (y == 2 || y == 3)
         {
-            laneRight = map.get(myCar.position.lane-1 + 1);
-            laneLeft = map.get(myCar.position.lane-1 - 1);
+            laneRight = map.get(y-1 + 1);
+            laneLeft = map.get(y-1 - 1);
         }
 
         //also look right
-        else if (myCar.position.lane == 1)
+        else if (y == 1)
         {
-            laneRight = map.get(myCar.position.lane-1 + 1);
+            laneRight = map.get(y-1 + 1);
         }
 
         //also look left
         else if (myCar.position.lane == 4)
         {
-            laneLeft = map.get(myCar.position.lane-1 - 1);
+            laneLeft = map.get(y-1 - 1);
         }
 
         /*---------------------------------------------------------------------------------------------*/
@@ -88,74 +92,104 @@ public class Bot {
         // BOT DECISION LOGIC
 
 
-        boolean haveMud = checkObjForward(Terrain.MUD, laneStraight, myCar, myCar.speed);
-        boolean haveWall = checkObjForward(Terrain.WALL, laneStraight, myCar, myCar.speed);
-        boolean haveOil = checkObjForward(Terrain.OIL_SPILL, laneStraight,myCar,myCar.speed);
+        boolean haveMud = checkObjForward(Terrain.MUD, laneStraight, x, myCar.speed);
+        boolean haveWall = checkObjForward(Terrain.WALL, laneStraight, x, myCar.speed);
+        boolean haveOil = checkObjForward(Terrain.OIL_SPILL, laneStraight,x,myCar.speed);
 
         //Damage Logic
         if (myCar.damage >= 5) {
             return FIX;
         }
-        else if (myCar.damage == 3 && myCar.speed > 6 ){
+        else if (myCar.damage == 4 && myCar.speed > 6 ){
             return FIX;
         }
-        else if (myCar.damage == 2 && myCar.speed > 8){
+        else if (myCar.damage == 3 && myCar.speed > 8){
             return FIX;
         }
 
 
         //Avoidance Logic
-        if (
-                checkObjForward(Terrain.MUD, laneStraight, myCar, myCar.speed) ||
-                checkObjForward(Terrain.WALL, laneStraight, myCar, myCar.speed)
-           )
+        if (haveMud || haveWall || haveOil)
         {
-            if (hasPowerUp(PowerUps.LIZARD, myCar.powerups))
+            if (available(PowerUps.LIZARD, myCar.powerups))
             {
                 return LIZARD;
             }
             else
             {
-                // ada damage blom dipertimbangkan :(
-                if (myCar.speed == 3 && haveMud){
-                    // ini harusnya dicek di kanan/kiri ada wall ato ga, klo ada br accelerate
-                    return ACCELERATE;
-                }
-                // branch ini ttg kapan harus ganti arah
-                else if (myCar.speed > 3 && (haveMud || haveOil || haveWall)){
-                    // ini harusnya juga di cek kanan/kiri mana yang lebih beneficial
-                    if (myCar.position.lane == 1){
+                if (myCar.speed >= 3)
+                {
+                    if (x==1 && laneObstacleClear(laneRight, x, myCar.speed))
+                    {
                         return TURN_RIGHT;
                     }
-                    else if (myCar.position.lane == 4){
+                    else if (x==4 && laneObstacleClear(laneLeft, x,myCar.speed))
+                    {
                         return TURN_LEFT;
                     }
-                    else{
-                        int i = random.nextInt(directionList.size());
-                        return directionList.get(i);
+                    else if (x==2 || x==3)
+                    {
+                        if (laneObstacleClear(laneLeft,x,myCar.speed) && laneHasPowerUp(laneLeft, x,myCar.speed))
+                        {
+                            return TURN_LEFT;
+                        }
+                        else if (laneObstacleClear(laneRight,x,myCar.speed) &&
+                                laneHasPowerUp(laneRight,x,myCar.speed))
+                        {
+                            return TURN_RIGHT;
+                        }
+                        else if (laneObstacleClear(laneLeft,x,myCar.speed))
+                        {
+                            return TURN_LEFT;
+                        }
+                        else if (laneObstacleClear(laneRight,x,myCar.speed))
+                        {
+                            return TURN_RIGHT;
+                        }
                     }
                 }
-                else {
-                    return ACCELERATE;
+
+                else
+                {
+                    if (haveMud || haveOil && !haveWall)
+                    {
+                        if (myCar.damage + MUD_DAMAGE < 5) {
+                            return ACCELERATE;
+                        }
+                    }
+                    else if (!(haveMud || haveOil) && haveWall)
+                    {
+                        if (myCar.damage + WALL_DAMAGE < 5) {
+                            return ACCELERATE;
+                        }
+                    }
+                    else if ((haveMud||haveOil) && haveWall)
+                    {
+                        if (myCar.damage + WALL_DAMAGE + OIL_DAMAGE < 5)
+                        {
+                            return ACCELERATE;
+                        }
+                    }
+                    return FIX;
                 }
             }
         }
 
+        //Improvement logic coba di improve lagi wkwkwk
         //Improvement logic
+        if (available(PowerUps.BOOST, myCar.powerups)) {
+            return BOOST;
+        }
         if (myCar.speed <= 3) {
             return ACCELERATE;
         }
 
-        if (hasPowerUp(PowerUps.BOOST, myCar.powerups)) {
-            return BOOST;
-        }
-
         //Offensive logic
         if (myCar.speed == maxSpeed) {
-            if (hasPowerUp(PowerUps.OIL, myCar.powerups)) {
+            if (available(PowerUps.OIL, myCar.powerups)) {
                 return OIL;
             }
-            if (hasPowerUp(PowerUps.EMP, myCar.powerups)) {
+            if (available(PowerUps.EMP, myCar.powerups)) {
                 return EMP;
             }
         }
@@ -166,7 +200,7 @@ public class Bot {
         /*---------------------------------------------------------------------------------------------*/
     }
 
-    private Boolean hasPowerUp(PowerUps powerUpCheck, PowerUps[] inventory) {
+    private Boolean available(PowerUps powerUpCheck, PowerUps[] inventory) {
         //check whether powerUpCheck is in inventory
         for (PowerUps powerUp: inventory) {
             if (powerUp.equals(powerUpCheck)) {
@@ -176,11 +210,11 @@ public class Bot {
         return false;
     }
 
-    private Boolean checkObjForward(Terrain obj, Lane[] lane, Car myCar, int distance)
+    private Boolean checkObjForward(Terrain obj, Lane[] lane, int x, int distance)
     {
         //check certain terrain object forward in a distance
         int startBlock = lane[0].position.block;
-        int start = max( (myCar.position.block - startBlock) , 0);
+        int start = max( (x - startBlock) , 0);
         for (int j = start ; j <= start+distance && j < lane.length && lane[j] != null ; j++)
         {
             if (lane[j].terrain.equals(obj))
@@ -191,10 +225,10 @@ public class Bot {
         return false;
     }
 
-    private Boolean checkObjBackward(Terrain obj, Lane[] lane, Car myCar)
+    private Boolean checkObjBackward(Terrain obj, Lane[] lane, int x)
     {
         //check certain terrain object backward
-        int start = myCar.position.block;
+        int start = x-1;
         for (int j = start ; j >= 0 && lane[j] != null ; j--)
         {
             if (lane[j].terrain.equals(obj))
@@ -203,5 +237,21 @@ public class Bot {
             }
         }
         return false;
+    }
+
+    private Boolean laneObstacleClear(Lane[] lane, int x, int distance)
+    {
+        return !checkObjForward(Terrain.OIL_SPILL, lane, x, distance) &&
+        !checkObjForward(Terrain.WALL,lane, x, distance) &&
+        !checkObjForward(Terrain.MUD,lane, x, distance);
+    }
+
+    private Boolean laneHasPowerUp(Lane[] lane, int x, int distance)
+    {
+        return checkObjForward(Terrain.TWEET, lane, x, distance) ||
+                checkObjForward(Terrain.EMP,lane, x, distance) ||
+                checkObjForward(Terrain.BOOST,lane, x, distance)||
+                checkObjForward(Terrain.LIZARD,lane, x, distance)||
+                checkObjForward(Terrain.OIL_POWER,lane, x, distance);
     }
 }
