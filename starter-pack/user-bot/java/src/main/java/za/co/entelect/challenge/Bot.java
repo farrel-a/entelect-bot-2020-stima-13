@@ -63,20 +63,20 @@ public class Bot {
         //also look left and right
         if (myCar.position.lane == 2 || myCar.position.lane == 3)
         {
-            laneRight = map.get(myCar.position.lane-1 - 1);
-            laneLeft = map.get(myCar.position.lane-1 + 1);
+            laneRight = map.get(myCar.position.lane-1 + 1);
+            laneLeft = map.get(myCar.position.lane-1 - 1);
         }
 
         //also look right
         else if (myCar.position.lane == 1)
         {
-            laneRight = map.get(myCar.position.lane-1 - 1);
+            laneRight = map.get(myCar.position.lane-1 + 1);
         }
 
         //also look left
         else if (myCar.position.lane == 4)
         {
-            laneLeft = map.get(myCar.position.lane-1 + 1);
+            laneLeft = map.get(myCar.position.lane-1 - 1);
         }
 
         /*---------------------------------------------------------------------------------------------*/
