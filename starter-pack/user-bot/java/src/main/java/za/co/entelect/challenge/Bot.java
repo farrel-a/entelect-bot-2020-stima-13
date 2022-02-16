@@ -106,7 +106,9 @@ public class Bot {
         else if (myCar.damage == 3 && myCar.speed > 8){
             return FIX;
         }
-
+        if (available(PowerUps.BOOST, myCar.powerups) && (!haveMud && !haveWall)) {
+            return BOOST;
+        }
 
         //Avoidance Logic
         if (haveMud || haveWall || haveOil)
@@ -177,9 +179,7 @@ public class Bot {
 
         //Improvement logic coba di improve lagi wkwkwk
         //Improvement logic
-        if (available(PowerUps.BOOST, myCar.powerups)) {
-            return BOOST;
-        }
+
         if (myCar.speed <= 3) {
             return ACCELERATE;
         }
