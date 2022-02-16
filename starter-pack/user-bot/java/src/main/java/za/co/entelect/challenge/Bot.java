@@ -14,6 +14,9 @@ import java.security.SecureRandom;
 public class Bot {
 
     private static final int maxSpeed = 9;
+    private static final int SPEED_LEVEL_1 = 3;
+    private static final int SPEED_LEVEL_2 = 6;
+    private static final int SPEED_LEVEL_3 = 9;
     private List<Command> directionList = new ArrayList<>();
 
     private final Random random;
@@ -84,10 +87,22 @@ public class Bot {
         /*---------------------------------------------------------------------------------------------*/
         // BOT DECISION LOGIC
 
+
+        boolean haveMud = checkObjForward(Terrain.MUD, laneStraight, myCar, myCar.speed);
+        boolean haveWall = checkObjForward(Terrain.WALL, laneStraight, myCar, myCar.speed);
+        boolean haveOil = checkObjForward(Terrain.OIL_SPILL, laneStraight,myCar,myCar.speed);
+
         //Damage Logic
         if (myCar.damage >= 5) {
             return FIX;
         }
+        else if (myCar.damage == 3 && myCar.speed > 6 ){
+            return FIX;
+        }
+        else if (myCar.damage == 2 && myCar.speed > 8){
+            return FIX;
+        }
+
 
         //Avoidance Logic
         if (
@@ -101,8 +116,28 @@ public class Bot {
             }
             else
             {
-                int i = random.nextInt(directionList.size());
-                return directionList.get(i);
+                // ada damage blom dipertimbangkan :(
+                if (myCar.speed == 3 && haveMud){
+                    // ini harusnya dicek di kanan/kiri ada wall ato ga, klo ada br accelerate
+                    return ACCELERATE;
+                }
+                // branch ini ttg kapan harus ganti arah
+                else if (myCar.speed > 3 && (haveMud || haveOil || haveWall)){
+                    // ini harusnya juga di cek kanan/kiri mana yang lebih beneficial
+                    if (myCar.position.lane == 1){
+                        return TURN_RIGHT;
+                    }
+                    else if (myCar.position.lane == 4){
+                        return TURN_LEFT;
+                    }
+                    else{
+                        int i = random.nextInt(directionList.size());
+                        return directionList.get(i);
+                    }
+                }
+                else {
+                    return ACCELERATE;
+                }
             }
         }
 
