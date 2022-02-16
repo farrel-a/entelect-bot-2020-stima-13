@@ -106,7 +106,7 @@ public class Bot {
         else if (myCar.damage == 3 && myCar.speed > 8){
             return FIX;
         }
-        if (available(PowerUps.BOOST, myCar.powerups) && (!haveMud && !haveWall)) {
+        if (available(PowerUps.BOOST, myCar.powerups) && (!haveMud && !haveWall && !haveOil)) {
             return BOOST;
         }
 
@@ -121,15 +121,15 @@ public class Bot {
             {
                 if (myCar.speed >= 3)
                 {
-                    if (x==1 && laneObstacleClear(laneRight, x, myCar.speed))
+                    if (y==1 && laneObstacleClear(laneRight, x, myCar.speed))
                     {
                         return TURN_RIGHT;
                     }
-                    else if (x==4 && laneObstacleClear(laneLeft, x,myCar.speed))
+                    else if (y==4 && laneObstacleClear(laneLeft, x,myCar.speed))
                     {
                         return TURN_LEFT;
                     }
-                    else if (x==2 || x==3)
+                    else if (y==2 || y==3)
                     {
                         if (laneObstacleClear(laneLeft,x,myCar.speed) && laneHasPowerUp(laneLeft, x,myCar.speed))
                         {
@@ -177,12 +177,12 @@ public class Bot {
             }
         }
 
-        //Improvement logic coba di improve lagi wkwkwk
-        //Improvement logic
-
         if (myCar.speed <= 3) {
             return ACCELERATE;
         }
+
+        //Improvement logic coba di improve lagi wkwkwk
+        //Improvement logic
 
         //Offensive logic
         if (myCar.speed == maxSpeed) {
