@@ -35,6 +35,10 @@ public class Bot {
     }
 
     public Command run(GameState gameState) {
+
+        /*---------------------------------------------------------------------------------------------*/
+        //BOT STATE SETUP
+
         //Setup Player State
         Car myCar = gameState.player;
         Car opponent = gameState.opponent;
@@ -44,7 +48,7 @@ public class Bot {
         //myCar.position.lane = row/y
         //myCar.position.block = column/x
 
-        /*---------------------------------------------------------------------------*/
+
 
         //Bot visible map
         Lane[] laneStraight;
@@ -75,20 +79,21 @@ public class Bot {
             laneLeft = map.get(myCar.position.lane-1 + 1);
         }
 
-        /*------------------------------------------------------------------------------*/
+        /*---------------------------------------------------------------------------------------------*/
 
-        //Fix first if too damaged to move
+        /*---------------------------------------------------------------------------------------------*/
+        // BOT DECISION LOGIC
+
+        //Damage Logic
         if (myCar.damage >= 5) {
             return FIX;
         }
-        //Accelerate first if going to slow
-        if (myCar.speed <= 3) {
-            return ACCELERATE;
-        }
 
         //Avoidance Logic
-        if (checkObjForward(Terrain.MUD, laneStraight, myCar, myCar.speed) ||
-            checkObjForward(Terrain.WALL, laneStraight, myCar, myCar.speed))
+        if (
+                checkObjForward(Terrain.MUD, laneStraight, myCar, myCar.speed) ||
+                checkObjForward(Terrain.WALL, laneStraight, myCar, myCar.speed)
+           )
         {
             if (hasPowerUp(PowerUps.LIZARD, myCar.powerups))
             {
@@ -101,12 +106,16 @@ public class Bot {
             }
         }
 
-        //Basic improvement logic
+        //Improvement logic
+        if (myCar.speed <= 3) {
+            return ACCELERATE;
+        }
+
         if (hasPowerUp(PowerUps.BOOST, myCar.powerups)) {
             return BOOST;
         }
 
-        //Basic aggression logic
+        //Offensive logic
         if (myCar.speed == maxSpeed) {
             if (hasPowerUp(PowerUps.OIL, myCar.powerups)) {
                 return OIL;
@@ -116,10 +125,14 @@ public class Bot {
             }
         }
 
+        //default logic
         return ACCELERATE;
+
+        /*---------------------------------------------------------------------------------------------*/
     }
 
     private Boolean hasPowerUp(PowerUps powerUpCheck, PowerUps[] inventory) {
+        //check whether powerUpCheck is in inventory
         for (PowerUps powerUp: inventory) {
             if (powerUp.equals(powerUpCheck)) {
                 return true;
@@ -130,7 +143,7 @@ public class Bot {
 
     private Boolean checkObjForward(Terrain obj, Lane[] lane, Car myCar, int distance)
     {
-        //check certain terrain object forward in a distanc
+        //check certain terrain object forward in a distance
         int startBlock = lane[0].position.block;
         int start = max( (myCar.position.block - startBlock) , 0);
         for (int j = start ; j <= start+distance && j < lane.length && lane[j] != null ; j++)
@@ -156,57 +169,4 @@ public class Bot {
         }
         return false;
     }
-
-
-
-//    /**
-//     * Returns map of blocks and the objects in the for the current lanes, returns
-//     * the amount of blocks that are visible
-//     **/
-//    private List<Object> getBlocksFront(int i, int j, GameState gameState, Car myCar) {
-//        // Current Visible Map
-//        List<Lane[]> map = gameState.lanes;
-//
-//        // List of Blocks ahead at lane i
-//        List<Object> blocks = new ArrayList<>();
-//
-//        // lane at i
-//        Lane[] laneList = map.get(i - 1);
-//        int startBlock = map.get(i - 1)[0].position.block;
-//
-//        /* lanelist is visible map at lane-i, current pos at lanlist doesn't always start from col index 0
-//         because it can look back */
-//        int a = max(j-startBlock, 0);
-//
-//        while (laneList[a] != null || laneList[a].terrain != Terrain.FINISH)
-//        {
-//            blocks.add(laneList[a].terrain);
-//            a++;
-//        }
-//        return blocks;
-//    }
-//
-//    private List<Object> getBlocksBack(int i, int j, GameState gameState, Car myCar) {
-//        // Current Visible Map
-//        List<Lane[]> map = gameState.lanes;
-//
-//        // List of Blocks ahead at lane i
-//        List<Object> blocks = new ArrayList<>();
-//
-//        // lane at i
-//        Lane[] laneList = map.get(i - 1);
-//        int startBlock = map.get(i - 1)[0].position.block;
-//
-//        /* lanelist is visible map at lane-i, current pos at lanlist doesn't always start from col index 0
-//         because it can look back */
-//        int a = j-startBlock;
-//
-//        while (a>=0 && laneList[a] != null)
-//        {
-//            blocks.add(laneList[j].terrain;
-//            a--;
-//        }
-//        return blocks;
-//    }
-
 }
