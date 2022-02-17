@@ -105,6 +105,13 @@ public class Bot {
         int y_op = opponent.position.lane;
         /* SETUP ---------------------------------------------------------------------------------------*/
 
+
+        /* BOOST LOGIC-----------------------------------------------------------------------------------*/
+        if (haveBoost) {
+            return BOOST;
+        }
+        /* BOOST LOGIC-----------------------------------------------------------------------------------*/
+
         /* DAMAGE LOGIC ---------------------------------------------------------------------------------*/
         if (myCar.damage >= 5) {
             return FIX;
@@ -188,11 +195,7 @@ public class Bot {
         }
         /* AVOIDANCE LOGIC-------------------------------------------------------------------------------*/
 
-        /* BOOST LOGIC-----------------------------------------------------------------------------------*/
-        if (haveBoost) {
-            return BOOST;
-        }
-        /* BOOST LOGIC-----------------------------------------------------------------------------------*/
+
 
         /* OFFENSIVE LOGIC-------------------------------------------------------------------------------*/
         if ((haveTweet|| haveOilPow) && x > x_op)
@@ -255,28 +258,68 @@ public class Bot {
         {
             boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
             boolean powerUpRight = laneHasPowerUp(laneRight, x, myCar.speed);
-            if (clearRight && powerUpRight){return TURN_RIGHT;}
+            boolean clearFront = laneObstacleClear(laneStraight,x,myCar.speed);
+            boolean powerUpFront = laneHasPowerUp(laneStraight,x,myCar.speed);
+            if (clearFront && powerUpFront)
+            {
+                return ACCELERATE;
+            }
+            else if (clearRight && powerUpRight){return TURN_RIGHT;}
         }
         if (y == 4)
         {
             boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
             boolean powerUpLeft = laneHasPowerUp(laneLeft, x, myCar.speed);
-            if (clearLeft && powerUpLeft){return TURN_LEFT;}
+            boolean clearFront = laneObstacleClear(laneStraight,x,myCar.speed);
+            boolean powerUpFront = laneHasPowerUp(laneStraight,x,myCar.speed);
+            if (clearFront && powerUpFront)
+            {
+                return ACCELERATE;
+            }
+            else if (clearLeft && powerUpLeft)
+            {
+                return TURN_LEFT;
+            }
         }
 
         if (y==2 || y==3)
         {
             boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
             boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
+            boolean clearFront = laneObstacleClear(laneStraight,x,myCar.speed);
+            boolean powerUpFront = laneHasPowerUp(laneStraight,x,myCar.speed);
             boolean powerUpLeft = laneHasPowerUp(laneLeft, x, myCar.speed);
             boolean powerUpRight = laneHasPowerUp(laneRight, x, myCar.speed);
-            if (clearRight && powerUpRight)
+            boolean hasBoostFront = laneHasBoost(laneStraight,x,myCar.speed);
+            boolean hasBoostLeft = laneHasBoost(laneLeft,x,myCar.speed);
+            boolean hasBoostRight = laneHasBoost(laneRight,x,myCar.speed);
+
+
+            if (powerUpFront && clearFront)
             {
-                return TURN_RIGHT;
+                // prioritize boost powerup
+                if (hasBoostFront){
+                    return  ACCELERATE;
+                }
+                else if (hasBoostLeft && clearLeft && !hasBoostFront && !hasBoostRight){
+                    return TURN_LEFT;
+                }
+                else if (hasBoostRight && clearRight && !hasBoostFront && !hasBoostLeft){
+                    return TURN_RIGHT;
+                }
+                else{
+                    return ACCELERATE;
+                }
             }
-            else if (clearLeft && powerUpLeft)
-            {
-                return TURN_LEFT;
+            else{
+                if (clearRight && powerUpRight)
+                {
+                    return TURN_RIGHT;
+                }
+                else if (clearLeft && powerUpLeft)
+                {
+                    return TURN_LEFT;
+                }
             }
         }
         /* CATCH POWER UP LOGIC-------------------------------------------------------------------------*/
@@ -359,4 +402,10 @@ public class Bot {
                 checkObjForward(Terrain.LIZARD,lane, x, distance)||
                 checkObjForward(Terrain.OIL_POWER,lane, x, distance);
     }
+
+    private Boolean laneHasBoost(Lane[] lane, int x, int distance)
+    {
+        return  checkObjForward(Terrain.BOOST,lane,x,distance);
+    }
 }
+
