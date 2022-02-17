@@ -128,51 +128,49 @@ public class Bot {
         /* AVOIDANCE LOGIC-------------------------------------------------------------------------------*/
         if (!clearStraight)
         {
+            if (y == 2 || y==3)
+            {
+                boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
+                boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
+                boolean powerUpLeft = laneHasPowerUp(laneLeft, x, myCar.speed);
+                boolean powerUpRight = laneHasPowerUp(laneRight, x, myCar.speed);
+                if (clearRight && powerUpRight)
+                {
+                    return TURN_RIGHT;
+                }
+                else if (clearLeft && powerUpLeft)
+                {
+                    return TURN_LEFT;
+                }
+                else if (clearRight)
+                {
+                    return TURN_RIGHT;
+                }
+                else if (clearLeft)
+                {
+                    return TURN_LEFT;
+                }
+            }
+
+            if (y==1)
+            {
+                boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
+                if (clearRight){return TURN_RIGHT;}
+            }
+
+            if (y==4)
+            {
+                boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
+                if (clearLeft){return TURN_LEFT;}
+            }
+
+            //cannot turn both are not clear
             if (haveLizard)
             {
                 return LIZARD;
             }
-            else
-            {
-                if (y == 2 || y==3)
-                {
-                    boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
-                    boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
-                    boolean powerUpLeft = laneHasPowerUp(laneLeft, x, myCar.speed);
-                    boolean powerUpRight = laneHasPowerUp(laneRight, x, myCar.speed);
-                    if (clearRight && powerUpRight)
-                    {
-                        return TURN_RIGHT;
-                    }
-                    else if (clearLeft && powerUpLeft)
-                    {
-                        return TURN_LEFT;
-                    }
-                    else if (clearRight)
-                    {
-                        return TURN_RIGHT;
-                    }
-                    else if (clearLeft)
-                    {
-                        return TURN_LEFT;
-                    }
-                }
+            return ACCELERATE;
 
-                if (y==1)
-                {
-                    boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
-                    if (clearRight){return TURN_RIGHT;}
-                }
-
-                if (y==4)
-                {
-                    boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
-                    if (clearLeft){return TURN_LEFT;}
-                }
-
-                //cannot turn both are not clear
-                return ACCELERATE;
-            }
         }
         /* AVOIDANCE LOGIC-------------------------------------------------------------------------------*/
 
