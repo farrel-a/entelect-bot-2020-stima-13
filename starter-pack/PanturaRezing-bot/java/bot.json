@@ -3,6 +3,6 @@
 	"email": "",
 	"nickName": "PanturaRezing",
 	"botLocation": "/target",
-	"botFileName": "user-bot-jar-with-dependencies.jar",
+	"botFileName": "PanturaRezing-bot-jar-with-dependencies.jar",
 	"botLanguage": "java"
 }
