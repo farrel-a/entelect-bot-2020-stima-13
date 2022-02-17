@@ -122,20 +122,20 @@ public class Bot {
         {
             if (myCar.state.equals(State.NOTHING))
             {
-                return ACCELERATE;
+                if(myCar.damage >= 5)
+                    return FIX;
+                else
+                    return ACCELERATE;
             }
         }
         catch (Exception e)
         {
-           return ACCELERATE;
+            if(myCar.damage >= 5)
+                return FIX;
+            else
+                return ACCELERATE;
         }
         /* STUCK FORCE ACCELERATE------------------------------------------------------------------------*/
-
-        /* BOOST LOGIC-----------------------------------------------------------------------------------*/
-        if (haveBoost) {
-            return BOOST;
-        }
-        /* BOOST LOGIC-----------------------------------------------------------------------------------*/
 
         /* AVOIDANCE LOGIC-------------------------------------------------------------------------------*/
         if (!clearStraight)
@@ -188,6 +188,12 @@ public class Bot {
         }
         /* AVOIDANCE LOGIC-------------------------------------------------------------------------------*/
 
+        /* BOOST LOGIC-----------------------------------------------------------------------------------*/
+        if (haveBoost) {
+            return BOOST;
+        }
+        /* BOOST LOGIC-----------------------------------------------------------------------------------*/
+
         /* OFFENSIVE LOGIC-------------------------------------------------------------------------------*/
         if ((haveTweet|| haveOilPow) && x > x_op)
         {
@@ -228,16 +234,18 @@ public class Bot {
             //else, correct aim
             else
             {
-                if (y < y_op)
+                if (y == y_op-1)
                 {
                     boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
                     if (clearRight){return TURN_RIGHT;}
                 }
-                else
+                else if(y== y_op+1)
                 {
                     boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
                     if (clearLeft){return TURN_LEFT;}
                 }
+                else
+                    return ACCELERATE;
             }
         }
         /* OFFENSIVE LOGIC-------------------------------------------------------------------------------*/
