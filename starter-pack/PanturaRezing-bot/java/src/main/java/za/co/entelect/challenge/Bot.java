@@ -10,19 +10,7 @@ import java.util.*;
 
 import static java.lang.Math.max;
 
-import java.security.SecureRandom;
-
 public class Bot {
-
-    private static final int MUD_DAMAGE = 1;
-    private static final int OIL_DAMAGE = 1;
-    private static final int WALL_DAMAGE = 2;
-    private static final int maxSpeed = 9;
-    private static final int SPEED_LEVEL_1 = 3;
-    private static final int SPEED_LEVEL_2 = 6;
-    private static final int SPEED_LEVEL_3 = 9;
-
-    private final Random random;
 
     private final static Command ACCELERATE = new AccelerateCommand();
     private final static Command LIZARD = new LizardCommand();
@@ -35,7 +23,7 @@ public class Bot {
     private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
 
     public Bot() {
-        this.random = new SecureRandom();
+
     }
 
     public Command run(GameState gameState) {
@@ -59,7 +47,6 @@ public class Bot {
         Lane[] laneStraight;
         Lane[] laneRight = new Lane[1];
         Lane[] laneLeft = new Lane[1];
-        List<Object> nextBlock;
 
         //monitor straight
         laneStraight = map.get(myCar.position.lane-1);
@@ -123,23 +110,17 @@ public class Bot {
         {
             if (myCar.state.equals(State.NOTHING))
             {
-                if(myCar.damage >= 5)
-                    return FIX;
-                else
-                    return ACCELERATE;
+                return ACCELERATE;
             }
         }
         catch (Exception e)
         {
-            if(myCar.damage >= 5)
-                return FIX;
-            else
-                return ACCELERATE;
+            return ACCELERATE;
         }
         /* STUCK FORCE ACCELERATE------------------------------------------------------------------------*/
 
         /* BOOST LOGIC-----------------------------------------------------------------------------------*/
-        if (haveBoost) {
+        if (haveBoost && laneObstacleClear(laneStraight, x, 20)) {
             return BOOST;
         }
         /* BOOST LOGIC-----------------------------------------------------------------------------------*/
@@ -299,10 +280,10 @@ public class Bot {
                 if (hasBoostFront){
                     return  ACCELERATE;
                 }
-                else if (hasBoostLeft && clearLeft && !hasBoostFront && !hasBoostRight){
+                else if (hasBoostLeft && clearLeft && !hasBoostRight){
                     return TURN_LEFT;
                 }
-                else if (hasBoostRight && clearRight && !hasBoostFront && !hasBoostLeft){
+                else if (hasBoostRight && clearRight && !hasBoostLeft){
                     return TURN_RIGHT;
                 }
                 else{
@@ -353,36 +334,6 @@ public class Bot {
             }
         }
         return false;
-    }
-
-    private Boolean checkObjBackward(Terrain obj, Lane[] lane, int x)
-    {
-        //check certain terrain object backward
-        int start = x-1;
-        for (int j = start ; j >= 0 && lane[j] != null ; j--)
-        {
-            if (lane[j].terrain.equals(obj))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private int countObstacleForward(Terrain obj, Lane[] lane, int x, int distance)
-    {
-        //count certain obstacle
-        int c = 0;
-        int startBlock = lane[0].position.block;
-        int start = max( (x - startBlock) , 0);
-        for (int j = start ; j <= start+distance && j < lane.length && lane[j] != null ; j++)
-        {
-            if (lane[j].terrain.equals(obj))
-            {
-                c++;
-            }
-        }
-        return c;
     }
 
     private Boolean laneObstacleClear(Lane[] lane, int x, int distance)
