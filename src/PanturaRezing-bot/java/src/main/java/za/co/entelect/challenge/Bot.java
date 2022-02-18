@@ -203,27 +203,7 @@ public class Bot {
 
         if (haveEMP && x < x_op)
         {
-            //if aimed correctly
-            if (y == y_op)
-            {
-                return EMP;
-            }
-            //else, correct aim
-            else
-            {
-                if (y == y_op-1)
-                {
-                    boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
-                    if (clearRight){return TURN_RIGHT;}
-                }
-                else if(y== y_op+1)
-                {
-                    boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
-                    if (clearLeft){return TURN_LEFT;}
-                }
-                else
-                    return ACCELERATE;
-            }
+            return EMP;
         }
         /* OFFENSIVE LOGIC-------------------------------------------------------------------------------*/
 
