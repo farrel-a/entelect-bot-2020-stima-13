@@ -1,8 +1,16 @@
-# Entelect Challenge 2020 Bot Tugas Besar Strategi Algoritma IF2211 Tahun 2022
+# Entelect Challenge 2020 Bot Tugas Besar Strategi Algoritma IF2211 Tahun 2022 (PanturaRezing Bot)
 
 ## 13520110 - Farrel Ahmad
 ## 13520143 - Muhammad Gerald Akbar Giffera
 ## 13520148 - Fikri Ihsan
+
+<br>
+
+<img src="https://t-2.tstatic.net/pantura/foto/bank/images/Balapan-liar-di-Exit-Tol-Pekalongan.jpg" width = 600>
+
+Footage of Indonesian Street Racing (*Balap Liar*) in Pantura 
+
+Source : beritapekalongan1
 
 <br>
 
