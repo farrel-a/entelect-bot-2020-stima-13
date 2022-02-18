@@ -20,7 +20,6 @@ public class Bot {
     private final static Command BOOST = new BoostCommand();
     private final static Command EMP = new EmpCommand();
     private final static Command FIX = new FixCommand();
-    private final static Command DO_NOTHING = new DoNothingCommand();
 
     private final static Command TURN_RIGHT = new ChangeLaneCommand(1);
     private final static Command TURN_LEFT = new ChangeLaneCommand(-1);
@@ -97,15 +96,10 @@ public class Bot {
 
 
         /* DAMAGE LOGIC ---------------------------------------------------------------------------------*/
-        if (myCar.damage >= 5) {
+        if (myCar.damage >= 2) {
             return FIX;
         }
-        else if (myCar.damage == 4 && myCar.speed > 6 ){
-            return FIX;
-        }
-        else if (myCar.damage == 3 && myCar.speed > 8){
-            return FIX;
-        }
+
         /* DAMAGE LOGIC ---------------------------------------------------------------------------------*/
 
         /* STUCK FORCE ACCELERATE------------------------------------------------------------------------*/
@@ -209,7 +203,27 @@ public class Bot {
 
         if (haveEMP && x < x_op)
         {
-            return EMP;
+            //if aimed correctly
+            if (y == y_op)
+            {
+                return EMP;
+            }
+            //else, correct aim
+            else
+            {
+                if (y == y_op-1)
+                {
+                    boolean clearRight = laneObstacleClear(laneRight, x, myCar.speed);
+                    if (clearRight){return TURN_RIGHT;}
+                }
+                else if(y== y_op+1)
+                {
+                    boolean clearLeft = laneObstacleClear(laneLeft, x, myCar.speed);
+                    if (clearLeft){return TURN_LEFT;}
+                }
+                else
+                    return ACCELERATE;
+            }
         }
         /* OFFENSIVE LOGIC-------------------------------------------------------------------------------*/
 
